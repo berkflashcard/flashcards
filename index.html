@@ -1,0 +1,1358 @@
+```html
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kelime Kartları</title>
+
+<style>
+  :root{
+    --bg:#0f172a;
+    --card:#1e293b;
+    --accent:#38bdf8;
+    --good:#22c55e;
+    --bad:#ef4444;
+    --text:#e2e8f0;
+    --muted:#94a3b8;
+  }
+
+  *{
+    box-sizing:border-box;
+  }
+
+  body{
+    margin:0;
+    min-height:100vh;
+    background:var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:24px 16px;
+  }
+
+  /* TOP BAR */
+  .topbar{
+    width:100%;
+    max-width:480px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+  }
+
+  h1{
+    font-size:18px;
+    color:var(--muted);
+    font-weight:500;
+    margin:0;
+  }
+
+  .settings-btn{
+    background:var(--card);
+    color:var(--text);
+    border:1px solid #334155;
+    border-radius:10px;
+    padding:9px 13px;
+    font-size:13px;
+    cursor:pointer;
+  }
+
+  .settings-btn:hover{
+    opacity:.9;
+  }
+
+  /* SETTINGS PANEL */
+  .settings-panel{
+    width:100%;
+    max-width:480px;
+    background:var(--card);
+    border-radius:16px;
+    padding:18px;
+    margin-bottom:20px;
+    display:none;
+    box-shadow:0 10px 30px rgba(0,0,0,.25);
+  }
+
+  .settings-title{
+    font-size:16px;
+    font-weight:700;
+    margin-bottom:12px;
+  }
+
+  .total-words{
+    font-size:13px;
+    color:var(--muted);
+    margin-bottom:15px;
+  }
+
+  .setting-row{
+    display:flex;
+    gap:8px;
+    margin-bottom:16px;
+  }
+
+  .chunk-input{
+    flex:1;
+    min-width:0;
+    background:#0f172a;
+    color:var(--text);
+    border:1px solid #475569;
+    border-radius:10px;
+    padding:11px 12px;
+    font-size:14px;
+    outline:none;
+  }
+
+  .chunk-input:focus{
+    border-color:var(--accent);
+  }
+
+  .apply-btn{
+    background:var(--accent);
+    color:#0f172a;
+    border:none;
+    border-radius:10px;
+    padding:11px 16px;
+    font-weight:700;
+    cursor:pointer;
+  }
+
+  .ranges-title{
+    font-size:12px;
+    color:var(--muted);
+    margin-bottom:8px;
+  }
+
+  .ranges{
+    display:flex;
+    flex-wrap:wrap;
+    gap:7px;
+  }
+
+  .range-btn{
+    background:#0f172a;
+    color:var(--text);
+    border:1px solid #334155;
+    border-radius:9px;
+    padding:8px 11px;
+    font-size:12px;
+    cursor:pointer;
+  }
+
+  .range-btn.active{
+    background:var(--accent);
+    color:#0f172a;
+    border-color:var(--accent);
+    font-weight:700;
+  }
+
+  .range-btn:hover{
+    opacity:.9;
+  }
+
+  /* STATS */
+  .stats{
+    display:flex;
+    gap:12px;
+    margin-bottom:20px;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+
+  .stat{
+    background:var(--card);
+    padding:8px 14px;
+    border-radius:10px;
+    font-size:13px;
+    color:var(--muted);
+  }
+
+  .stat b{
+    color:var(--text);
+    font-size:15px;
+    display:block;
+  }
+
+  /* CARD */
+  .card{
+    background:var(--card);
+    border-radius:18px;
+    padding:32px 24px;
+    width:100%;
+    max-width:480px;
+    box-shadow:0 10px 30px rgba(0,0,0,.3);
+    text-align:center;
+    min-height:260px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    gap:14px;
+  }
+
+  .word{
+    font-size:32px;
+    font-weight:700;
+    letter-spacing:.5px;
+  }
+
+  .meanings{
+    font-size:20px;
+    color:var(--accent);
+    font-weight:600;
+    display:none;
+  }
+
+  .examples{
+    text-align:left;
+    font-size:14px;
+    color:var(--muted);
+    display:none;
+    line-height:1.5;
+    margin-top:6px;
+  }
+
+  .examples div{
+    margin-bottom:6px;
+  }
+
+  .progress{
+    font-size:12px;
+    color:var(--muted);
+    margin-top:4px;
+  }
+
+  /* CONTROLS */
+  .controls{
+    display:flex;
+    gap:10px;
+    margin-top:22px;
+    width:100%;
+    max-width:480px;
+    flex-wrap:wrap;
+  }
+
+  button{
+    flex:1;
+    min-width:120px;
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    font-size:15px;
+    font-weight:600;
+    cursor:pointer;
+    transition:transform .1s, opacity .2s;
+  }
+
+  button:active{
+    transform:scale(0.97);
+  }
+
+  .btn-show{
+    background:var(--accent);
+    color:#0f172a;
+  }
+
+  .btn-good{
+    background:var(--good);
+    color:#052e16;
+    display:none;
+  }
+
+  .btn-bad{
+    background:var(--bad);
+    color:#450a0a;
+    display:none;
+  }
+
+  .btn-reset{
+    background:transparent;
+    color:var(--muted);
+    border:1px solid #334155;
+    margin-top:16px;
+    flex:none;
+    padding:8px 16px;
+    font-size:12px;
+  }
+
+  .loading{
+    color:var(--muted);
+    margin-top:60px;
+  }
+
+  .error{
+    color:var(--bad);
+    margin-top:60px;
+    text-align:center;
+    max-width:480px;
+  }
+
+  .selected-info{
+    width:100%;
+    max-width:480px;
+    text-align:center;
+    color:var(--muted);
+    font-size:12px;
+    margin-bottom:10px;
+  }
+</style>
+</head>
+
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+
+  <h1>🇬🇧 → 🇹🇷 Kelime Kartları</h1>
+
+  <button class="settings-btn" id="settingsBtn">
+    ⚙️ Settings
+  </button>
+
+</div>
+
+
+<!-- SETTINGS -->
+<div class="settings-panel" id="settingsPanel">
+
+  <div class="settings-title">
+    Kelime Aralığı
+  </div>
+
+  <div class="total-words">
+    Toplam kelime: <b id="totalWords">0</b>
+  </div>
+
+  <div class="setting-row">
+
+    <input
+      type="number"
+      id="chunkSize"
+      class="chunk-input"
+      placeholder="Örn: 50"
+      min="1"
+    >
+
+    <button class="apply-btn" id="applyBtn">
+      Apply
+    </button>
+
+  </div>
+
+  <div class="ranges-title">
+    Bir grup seç:
+  </div>
+
+  <div class="ranges" id="ranges"></div>
+
+</div>
+
+
+<!-- SELECTED RANGE INFO -->
+<div class="selected-info" id="selectedInfo" style="display:none"></div>
+
+
+<!-- STATS -->
+<div class="stats" id="stats" style="display:none">
+
+  <div class="stat">
+    Doğru
+    <b id="statGood">0</b>
+  </div>
+
+  <div class="stat">
+    Yanlış
+    <b id="statBad">0</b>
+  </div>
+
+  <div class="stat">
+    Başarı
+    <b id="statRate">%0</b>
+  </div>
+
+</div>
+
+
+<div id="loading" class="loading">
+  Kelimeler yükleniyor...
+</div>
+
+
+<div id="errorBox" class="error" style="display:none"></div>
+
+
+<!-- CARD -->
+<div class="card" id="card" style="display:none">
+
+  <div class="word" id="wordEl"></div>
+
+  <div class="meanings" id="meaningsEl"></div>
+
+  <div class="examples" id="examplesEl"></div>
+
+  <div class="progress" id="progressEl"></div>
+
+</div>
+
+
+<!-- CONTROLS -->
+<div class="controls" id="controls" style="display:none">
+
+  <button class="btn-show" id="showBtn">
+    Cevabı Göster
+  </button>
+
+  <button class="btn-good" id="goodBtn">
+    ✅ Bildim
+  </button>
+
+  <button class="btn-bad" id="badBtn">
+    ❌ Bilemedim
+  </button>
+
+</div>
+
+
+<button class="btn-reset" id="resetBtn" style="display:none">
+  İstatistikleri sıfırla
+</button>
+
+
+<script>
+
+const DATA_FILE = "august.txt";
+const STORAGE_KEY = "flashcards_stats_v1";
+const SETTINGS_KEY = "flashcards_settings_v1";
+
+
+let deck = [];
+
+/*
+  selectedDeck = şu anda seçilmiş kelimeler
+*/
+let selectedDeck = [];
+
+
+/*
+  pool = seçilmiş kelimelerin random sırası
+*/
+let pool = [];
+
+
+let currentIdx = null;
+
+let stats = {
+  good: 0,
+  bad: 0
+};
+
+
+let selectedRange = null;
+
+
+/* ELEMENTLER */
+
+const els = {
+
+  loading: document.getElementById("loading"),
+
+  errorBox: document.getElementById("errorBox"),
+
+  card: document.getElementById("card"),
+
+  controls: document.getElementById("controls"),
+
+  statsBox: document.getElementById("stats"),
+
+  word: document.getElementById("wordEl"),
+
+  meanings: document.getElementById("meaningsEl"),
+
+  examples: document.getElementById("examplesEl"),
+
+  progress: document.getElementById("progressEl"),
+
+  showBtn: document.getElementById("showBtn"),
+
+  goodBtn: document.getElementById("goodBtn"),
+
+  badBtn: document.getElementById("badBtn"),
+
+  resetBtn: document.getElementById("resetBtn"),
+
+  statGood: document.getElementById("statGood"),
+
+  statBad: document.getElementById("statBad"),
+
+  statRate: document.getElementById("statRate"),
+
+  settingsBtn: document.getElementById("settingsBtn"),
+
+  settingsPanel: document.getElementById("settingsPanel"),
+
+  totalWords: document.getElementById("totalWords"),
+
+  chunkSize: document.getElementById("chunkSize"),
+
+  applyBtn: document.getElementById("applyBtn"),
+
+  ranges: document.getElementById("ranges"),
+
+  selectedInfo: document.getElementById("selectedInfo")
+
+};
+
+
+/* TXT SATIRINI PARSE ET */
+
+function parseLine(line) {
+
+  line = line.trim();
+
+  if (!line) return null;
+
+  const eqIdx = line.indexOf("=");
+
+  if (eqIdx === -1) return null;
+
+  const word = line.slice(0, eqIdx).trim();
+
+  const rest = line.slice(eqIdx + 1);
+
+  const parts = rest
+    .split("/")
+    .map(p => p.trim())
+    .filter(Boolean);
+
+  if (parts.length === 0) return null;
+
+  const meanings = parts[0]
+    .split(",")
+    .map(s => s.trim())
+    .filter(Boolean);
+
+  const examples = parts.slice(1);
+
+  if (!word || meanings.length === 0) return null;
+
+  return {
+    word,
+    meanings,
+    examples
+  };
+
+}
+
+
+/* İSTATİSTİK */
+
+function loadStats() {
+
+  try {
+
+    const raw = localStorage.getItem(STORAGE_KEY);
+
+    if (raw) {
+      stats = JSON.parse(raw);
+    }
+
+  } catch (e) {}
+
+}
+
+
+function saveStats() {
+
+  localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify(stats)
+  );
+
+}
+
+
+function renderStats() {
+
+  const total = stats.good + stats.bad;
+
+  const rate = total
+    ? Math.round((stats.good / total) * 100)
+    : 0;
+
+  els.statGood.textContent = stats.good;
+
+  els.statBad.textContent = stats.bad;
+
+  els.statRate.textContent = "%" + rate;
+
+}
+
+
+/* SETTINGS KAYDET */
+
+function saveSettings() {
+
+  localStorage.setItem(
+
+    SETTINGS_KEY,
+
+    JSON.stringify({
+
+      chunkSize: els.chunkSize.value,
+
+      selectedRange: selectedRange
+
+    })
+
+  );
+
+}
+
+
+/* SETTINGS YÜKLE */
+
+function loadSettings() {
+
+  try {
+
+    const raw = localStorage.getItem(SETTINGS_KEY);
+
+    if (!raw) return;
+
+    const settings = JSON.parse(raw);
+
+    if (settings.chunkSize) {
+
+      els.chunkSize.value = settings.chunkSize;
+
+    }
+
+    if (settings.selectedRange) {
+
+      selectedRange = settings.selectedRange;
+
+    }
+
+  } catch (e) {}
+
+}
+
+
+/*
+  TÜM GRUPLARI OLUŞTUR
+
+  Örneğin:
+
+  toplam = 137
+  chunk = 50
+
+  1-50
+  51-100
+  101-137
+*/
+
+function createRangeButtons() {
+
+  els.ranges.innerHTML = "";
+
+  const chunkSize = parseInt(
+    els.chunkSize.value,
+    10
+  );
+
+  if (
+    !chunkSize ||
+    chunkSize < 1 ||
+    deck.length === 0
+  ) {
+
+    return;
+
+  }
+
+
+  /* TÜMÜ */
+
+  const allBtn = document.createElement("button");
+
+  allBtn.className = "range-btn";
+
+  allBtn.textContent = `Tümü (${deck.length})`;
+
+  allBtn.dataset.start = 0;
+
+  allBtn.dataset.end = deck.length;
+
+  allBtn.addEventListener("click", () => {
+
+    selectRange(
+      0,
+      deck.length,
+      "Tümü"
+    );
+
+  });
+
+  els.ranges.appendChild(allBtn);
+
+
+  /* GRUPLAR */
+
+  for (
+    let start = 0;
+    start < deck.length;
+    start += chunkSize
+  ) {
+
+    const end = Math.min(
+      start + chunkSize,
+      deck.length
+    );
+
+    const btn = document.createElement("button");
+
+    btn.className = "range-btn";
+
+    /*
+      İnsan tarafından görünen sıra
+      1-50
+      51-100
+      101-137
+    */
+
+    btn.textContent =
+      `${start + 1}-${end}`;
+
+
+    btn.dataset.start = start;
+
+    btn.dataset.end = end;
+
+
+    btn.addEventListener("click", () => {
+
+      selectRange(
+        start,
+        end,
+        `${start + 1}-${end}`
+      );
+
+    });
+
+
+    els.ranges.appendChild(btn);
+
+  }
+
+
+  /* KAYITLI ARALIĞI AKTİF YAP */
+
+  if (selectedRange) {
+
+    const buttons =
+      els.ranges.querySelectorAll(".range-btn");
+
+    buttons.forEach(btn => {
+
+      const start =
+        Number(btn.dataset.start);
+
+      const end =
+        Number(btn.dataset.end);
+
+      if (
+        start === selectedRange.start &&
+        end === selectedRange.end
+      ) {
+
+        btn.classList.add("active");
+
+      }
+
+    });
+
+  }
+
+}
+
+
+/*
+  SEÇİLEN ARALIĞI AKTİF ET
+*/
+
+function selectRange(start, end, label) {
+
+  /*
+    deck'in ilgili bölümünü alıyoruz.
+  */
+
+  selectedDeck = deck.slice(start, end);
+
+
+  /*
+    Yeni havuz oluştur.
+  */
+
+  pool = selectedDeck.map(
+    (_, index) => index
+  );
+
+
+  shuffle(pool);
+
+
+  selectedRange = {
+    start: start,
+    end: end,
+    label: label
+  };
+
+
+  saveSettings();
+
+
+  /*
+    Butonların aktif durumunu değiştir.
+  */
+
+  const buttons =
+    els.ranges.querySelectorAll(".range-btn");
+
+
+  buttons.forEach(btn => {
+
+    btn.classList.remove("active");
+
+    const btnStart =
+      Number(btn.dataset.start);
+
+    const btnEnd =
+      Number(btn.dataset.end);
+
+    if (
+      btnStart === start &&
+      btnEnd === end
+    ) {
+
+      btn.classList.add("active");
+
+    }
+
+  });
+
+
+  /*
+    Bilgi yazısı
+  */
+
+  els.selectedInfo.style.display = "block";
+
+  els.selectedInfo.textContent =
+    `Seçilen bölüm: ${label} · ${selectedDeck.length} kelime`;
+
+
+  /*
+    Yeni kart göster.
+  */
+
+  nextCard();
+
+}
+
+
+/* RANDOM SHUFFLE */
+
+function shuffle(array) {
+
+  for (
+    let i = array.length - 1;
+    i > 0;
+    i--
+  ) {
+
+    const j =
+      Math.floor(Math.random() * (i + 1));
+
+    [
+      array[i],
+      array[j]
+    ] =
+    [
+      array[j],
+      array[i]
+    ];
+
+  }
+
+}
+
+
+/*
+  HAVUZ BOŞSA YENİ TUR
+*/
+
+function refillPoolIfNeeded() {
+
+  if (pool.length === 0) {
+
+    pool = selectedDeck.map(
+      (_, i) => i
+    );
+
+    shuffle(pool);
+
+  }
+
+}
+
+
+/*
+  SONRAKİ KART
+*/
+
+function nextCard() {
+
+  if (selectedDeck.length === 0) {
+    return;
+  }
+
+
+  refillPoolIfNeeded();
+
+
+  currentIdx = pool.pop();
+
+
+  const item =
+    selectedDeck[currentIdx];
+
+
+  els.word.textContent =
+    item.word;
+
+
+  els.meanings.textContent =
+    item.meanings.join(", ");
+
+
+  els.examples.innerHTML =
+    item.examples
+      .map(
+        ex => `<div>• ${escapeHtml(ex)}</div>`
+      )
+      .join("");
+
+
+  els.meanings.style.display =
+    "none";
+
+  els.examples.style.display =
+    "none";
+
+
+  els.showBtn.style.display =
+    "block";
+
+  els.goodBtn.style.display =
+    "none";
+
+  els.badBtn.style.display =
+    "none";
+
+
+  els.progress.textContent =
+    `Bu bölüm: ${selectedDeck.length} kelime · ` +
+    `Kalan: ${pool.length + 1}`;
+
+}
+
+
+/*
+  HTML GÜVENLİĞİ
+*/
+
+function escapeHtml(text) {
+
+  const div =
+    document.createElement("div");
+
+  div.textContent = text;
+
+  return div.innerHTML;
+
+}
+
+
+/* CEVABI GÖSTER */
+
+els.showBtn.addEventListener(
+  "click",
+  () => {
+
+    els.meanings.style.display =
+      "block";
+
+    els.examples.style.display =
+      "block";
+
+    els.showBtn.style.display =
+      "none";
+
+    els.goodBtn.style.display =
+      "block";
+
+    els.badBtn.style.display =
+      "block";
+
+  }
+);
+
+
+/* BİLDİM */
+
+els.goodBtn.addEventListener(
+  "click",
+  () => {
+
+    stats.good++;
+
+    saveStats();
+
+    renderStats();
+
+    nextCard();
+
+  }
+);
+
+
+/*
+  BİLEMEDİM
+
+  Aynı kelime tekrar havuza ekleniyor.
+*/
+
+els.badBtn.addEventListener(
+  "click",
+  () => {
+
+    stats.bad++;
+
+    saveStats();
+
+    renderStats();
+
+
+    /*
+      Yanlış bilinen kelimeyi
+      tekrar havuza koy.
+
+      Ama random olması için
+      rastgele bir pozisyona ekliyoruz.
+    */
+
+    const randomPosition =
+      Math.floor(
+        Math.random() * (pool.length + 1)
+      );
+
+
+    pool.splice(
+      randomPosition,
+      0,
+      currentIdx
+    );
+
+
+    nextCard();
+
+  }
+);
+
+
+/* SETTINGS AÇ/KAPA */
+
+els.settingsBtn.addEventListener(
+  "click",
+  () => {
+
+    const isOpen =
+      els.settingsPanel.style.display === "block";
+
+
+    els.settingsPanel.style.display =
+      isOpen ? "none" : "block";
+
+  }
+);
+
+
+/*
+  APPLY
+
+  Örneğin kullanıcı 50 yazdı.
+
+  1-50
+  51-100
+  101-150
+  ...
+*/
+
+els.applyBtn.addEventListener(
+  "click",
+  () => {
+
+    const value =
+      parseInt(
+        els.chunkSize.value,
+        10
+      );
+
+
+    if (
+      !value ||
+      value < 1
+    ) {
+
+      alert(
+        "Lütfen 1 veya daha büyük bir sayı gir."
+      );
+
+      return;
+
+    }
+
+
+    /*
+      Yeni gruplar oluştur.
+    */
+
+    createRangeButtons();
+
+
+    /*
+      İlk grubu otomatik seç.
+    */
+
+    selectRange(
+      0,
+      Math.min(value, deck.length),
+      `1-${Math.min(value, deck.length)}`
+    );
+
+  }
+);
+
+
+/*
+  ENTER İLE APPLY
+*/
+
+els.chunkSize.addEventListener(
+  "keydown",
+  event => {
+
+    if (event.key === "Enter") {
+
+      els.applyBtn.click();
+
+    }
+
+  }
+);
+
+
+/* İSTATİSTİK RESET */
+
+els.resetBtn.addEventListener(
+  "click",
+  () => {
+
+    if (
+      confirm(
+        "İstatistikleri sıfırlamak istediğine emin misin?"
+      )
+    {
+
+      stats = {
+        good: 0,
+        bad: 0
+      };
+
+      saveStats();
+
+      renderStats();
+
+    }
+
+  }
+);
+
+
+/* INIT */
+
+async function init() {
+
+  loadStats();
+
+  loadSettings();
+
+  renderStats();
+
+
+  try {
+
+    const res =
+      await fetch(
+        DATA_FILE,
+        {
+          cache: "no-store"
+        }
+      );
+
+
+    if (!res.ok) {
+
+      throw new Error(
+        "Dosya bulunamadı: " +
+        DATA_FILE
+      );
+
+    }
+
+
+    const text =
+      await res.text();
+
+
+    deck =
+      text
+        .split(/\r?\n/)
+        .map(parseLine)
+        .filter(Boolean);
+
+
+    if (deck.length === 0) {
+
+      throw new Error(
+        "Dosyada geçerli kelime bulunamadı."
+      );
+
+    }
+
+
+    /*
+      Sayıyı göster
+    */
+
+    els.totalWords.textContent =
+      deck.length;
+
+
+    /*
+      Sayfa elemanlarını göster
+    */
+
+    els.loading.style.display =
+      "none";
+
+    els.card.style.display =
+      "flex";
+
+    els.controls.style.display =
+      "flex";
+
+    els.statsBox.style.display =
+      "flex";
+
+    els.resetBtn.style.display =
+      "inline-block";
+
+
+    /*
+      Settings'te daha önce
+      bir sayı kaydedilmemişse
+      varsayılan 50.
+    */
+
+    if (
+      !els.chunkSize.value
+    ) {
+
+      els.chunkSize.value = 50;
+
+    }
+
+
+    /*
+      Grup butonlarını oluştur
+    */
+
+    createRangeButtons();
+
+
+    /*
+      Daha önce seçim yapılmışsa
+      onu geri yükle.
+
+      Yoksa ilk grubu seç.
+    */
+
+    if (
+      selectedRange &&
+      selectedRange.start >= 0 &&
+      selectedRange.end <= deck.length
+    ) {
+
+      selectRange(
+        selectedRange.start,
+        selectedRange.end,
+        selectedRange.label
+      );
+
+    } else {
+
+      const chunkSize =
+        parseInt(
+          els.chunkSize.value,
+          10
+        ) || 50;
+
+
+      selectRange(
+        0,
+        Math.min(chunkSize, deck.length),
+        `1-${Math.min(chunkSize, deck.length)}`
+      );
+
+    }
+
+  } catch (err) {
+
+    els.loading.style.display =
+      "none";
+
+    els.errorBox.style.display =
+      "block";
+
+    els.errorBox.textContent =
+      "Hata: " +
+      err.message +
+      " — " +
+      DATA_FILE +
+      " dosyasının index.html ile aynı klasörde olduğundan emin ol.";
+
+  }
+
+}
+
+
+init();
+
+</script>
+
+</body>
+</html>
+```
