@@ -1,0 +1,3152 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Kelime Kartları</title>
+
+<style>
+
+:root {
+  --bg: #0f172a;
+  --card: #1e293b;
+  --accent: #38bdf8;
+  --good: #22c55e;
+  --bad: #ef4444;
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 16px;
+}
+
+.topbar {
+  width: 100%;
+  max-width: 560px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+h1 {
+  font-size: 18px;
+  color: var(--muted);
+  font-weight: 500;
+  margin: 0;
+}
+
+.top-buttons {
+  display: flex;
+  gap: 7px;
+}
+
+.settings-btn,
+.game-btn {
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.game-btn {
+  background: #7c3aed;
+  color: white;
+  border-color: #8b5cf6;
+}
+
+.settings-btn:hover,
+.game-btn:hover {
+  opacity: 0.85;
+}
+
+.settings-panel {
+  width: 100%;
+  max-width: 560px;
+  background: var(--card);
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 20px;
+  display: none;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+}
+
+.settings-title {
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.total-words {
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 15px;
+}
+
+.setting-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.chunk-input {
+  flex: 1;
+  background: #0f172a;
+  color: var(--text);
+  border: 1px solid #475569;
+  border-radius: 10px;
+  padding: 11px;
+  font-size: 14px;
+  outline: none;
+}
+
+.chunk-input:focus {
+  border-color: var(--accent);
+}
+
+.apply-btn {
+  background: var(--accent);
+  color: #0f172a;
+  border: none;
+  border-radius: 10px;
+  padding: 11px 18px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ranges-title {
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 9px;
+}
+
+.ranges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.range-btn {
+  background: #0f172a;
+  color: var(--text);
+  border: 1px solid #334155;
+  border-radius: 9px;
+  padding: 8px 11px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.range-btn.active {
+  background: var(--accent);
+  color: #0f172a;
+  border-color: var(--accent);
+  font-weight: 700;
+}
+
+.selected-info {
+  width: 100%;
+  max-width: 560px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 12px;
+}
+
+.stats {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.stat {
+  background: var(--card);
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.stat b {
+  color: var(--text);
+  font-size: 15px;
+  display: block;
+}
+
+.card {
+  background: var(--card);
+  border-radius: 18px;
+  padding: 32px 24px;
+  width: 100%;
+  max-width: 560px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  text-align: center;
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 14px;
+}
+
+/* =========================
+   FLASHCARD WORD + SOUND
+========================= */
+
+.word-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+
+.word {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* Sadece kelimenin yanında bulunan ses butonu */
+
+.word-sound-btn {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  padding: 0;
+  flex: none;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #0f172a;
+  color: var(--accent);
+
+  border: 1px solid #334155;
+  border-radius: 50%;
+
+  font-size: 20px;
+  cursor: pointer;
+
+  transition: 0.15s;
+}
+
+.word-sound-btn:hover {
+  border-color: var(--accent);
+  transform: scale(1.05);
+}
+
+.word-sound-btn:active {
+  transform: scale(0.95);
+}
+
+.meanings {
+  font-size: 20px;
+  color: var(--accent);
+  font-weight: 600;
+  display: none;
+}
+
+.examples {
+  text-align: left;
+  font-size: 14px;
+  color: var(--muted);
+  display: none;
+  line-height: 1.5;
+  margin-top: 6px;
+}
+
+.examples div {
+  margin-bottom: 6px;
+}
+
+.progress {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+  margin-top: 22px;
+  width: 100%;
+  max-width: 560px;
+  flex-wrap: wrap;
+}
+
+button {
+  flex: 1;
+  min-width: 120px;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+.btn-show {
+  background: var(--accent);
+  color: #0f172a;
+}
+
+.btn-good {
+  background: var(--good);
+  color: #052e16;
+  display: none;
+}
+
+.btn-bad {
+  background: var(--bad);
+  color: #450a0a;
+  display: none;
+}
+
+.btn-reset {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid #334155;
+  margin-top: 16px;
+  flex: none;
+  padding: 8px 16px;
+  font-size: 12px;
+}
+
+.loading {
+  color: var(--muted);
+  margin-top: 60px;
+}
+
+.error {
+  color: var(--bad);
+  margin-top: 60px;
+  text-align: center;
+  max-width: 560px;
+}
+
+/* =========================
+   GAME
+========================= */
+
+.game-panel {
+  width: 100%;
+  max-width: 650px;
+  background: var(--card);
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  display: none;
+}
+
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.game-title {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.game-score {
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.game-question-number {
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 12px;
+}
+
+.game-sentence {
+  background: #0f172a;
+  border-radius: 14px;
+  padding: 22px;
+  font-size: 18px;
+  line-height: 1.7;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.blank {
+  display: inline-block;
+  color: var(--accent);
+  font-weight: 800;
+  letter-spacing: 2px;
+  min-width: 75px;
+  text-align: center;
+  border-bottom: 2px solid var(--accent);
+  line-height: 1;
+}
+
+.game-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* GAME ŞIK */
+
+.option-btn {
+  width: 100%;
+  min-width: 0;
+  text-align: left;
+  background: #0f172a;
+  color: var(--text);
+  border: 1px solid #334155;
+  padding: 12px 15px;
+  border-radius: 12px;
+  font-size: 15px;
+  transition: 0.15s;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.option-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.option-btn:disabled {
+  cursor: default;
+}
+
+.option-word {
+  font-weight: 700;
+}
+
+/* GAME SES BUTONU */
+
+.option-sound-btn {
+  flex: none;
+  min-width: 36px;
+  width: 36px;
+  height: 36px;
+
+  padding: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #1e293b;
+  color: var(--accent);
+
+  border: 1px solid #334155;
+  border-radius: 8px;
+
+  font-size: 17px;
+  cursor: pointer;
+}
+
+.option-sound-btn:hover {
+  border-color: var(--accent);
+}
+
+.option-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.option-meaning {
+  color: var(--muted);
+  font-weight: 400;
+  font-size: 13px;
+}
+
+.option-btn.correct {
+  background: rgba(34,197,94,0.20);
+  border-color: var(--good);
+  color: #86efac;
+}
+
+.option-btn.wrong {
+  background: rgba(239,68,68,0.20);
+  border-color: var(--bad);
+  color: #fca5a5;
+}
+
+.game-result {
+  min-height: 24px;
+  margin-top: 15px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.game-revealed-sentence {
+  margin-top: 12px;
+  padding: 14px;
+  background: #0f172a;
+  border-radius: 10px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+  text-align: left;
+}
+
+.game-revealed-word {
+  color: var(--accent);
+  font-weight: 800;
+}
+
+.game-next {
+  width: 100%;
+  margin-top: 12px;
+  background: var(--accent);
+  color: #0f172a;
+  display: none;
+}
+
+.game-close {
+  width: 100%;
+  margin-top: 8px;
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid #334155;
+}
+
+.game-start-info {
+  text-align: center;
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 20px 0;
+}
+
+.game-start {
+  width: 100%;
+  background: #7c3aed;
+  color: white;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 600px) {
+
+  body {
+    padding: 18px 12px;
+  }
+
+  .topbar {
+    align-items: flex-start;
+  }
+
+  h1 {
+    font-size: 15px;
+  }
+
+  .game-panel {
+    padding: 18px;
+  }
+
+  .game-sentence {
+    font-size: 17px;
+    padding: 18px;
+  }
+
+  .word {
+    font-size: 28px;
+  }
+
+  .word-sound-btn {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+  }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+
+  <h1>🇬🇧 → 🇹🇷 Kelime Kartları</h1>
+
+  <div class="top-buttons">
+
+    <button
+      class="game-btn"
+      id="gameBtn"
+    >
+      🎮 Game
+    </button>
+
+    <button
+      class="settings-btn"
+      id="settingsBtn"
+    >
+      ⚙️ Settings
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- SETTINGS -->
+
+<div
+  class="settings-panel"
+  id="settingsPanel"
+>
+
+  <div class="settings-title">
+    Kelime Grupları
+  </div>
+
+  <div class="total-words">
+
+    August.txt toplam kelime:
+    <b id="totalWords">0</b>
+
+  </div>
+
+  <div class="setting-row">
+
+    <input
+      type="number"
+      id="chunkSize"
+      class="chunk-input"
+      min="1"
+      placeholder="Örn: 50"
+    >
+
+    <button
+      class="apply-btn"
+      id="applyBtn"
+    >
+      Apply
+    </button>
+
+  </div>
+
+  <div class="ranges-title">
+    Kelime aralığını seç:
+  </div>
+
+  <div
+    class="ranges"
+    id="ranges"
+  ></div>
+
+</div>
+
+
+<!-- SELECTED INFO -->
+
+<div
+  class="selected-info"
+  id="selectedInfo"
+  style="display:none"
+></div>
+
+
+<!-- STATS -->
+
+<div
+  class="stats"
+  id="stats"
+  style="display:none"
+>
+
+  <div class="stat">
+    Doğru
+    <b id="statGood">0</b>
+  </div>
+
+  <div class="stat">
+    Yanlış
+    <b id="statBad">0</b>
+  </div>
+
+  <div class="stat">
+    Başarı
+    <b id="statRate">%0</b>
+  </div>
+
+</div>
+
+
+<!-- GAME -->
+
+<div
+  class="game-panel"
+  id="gamePanel"
+>
+
+  <div class="game-header">
+
+    <div class="game-title">
+      🎮 Sentence Game
+    </div>
+
+    <div
+      class="game-score"
+      id="gameScore"
+    >
+      Skor: 0 / 0
+    </div>
+
+  </div>
+
+  <div id="gameStartScreen">
+
+    <div
+      class="game-start-info"
+      id="gameStartInfo"
+    >
+      Seçili kelime grubundaki
+      örnek cümlelerden test
+      oluşturulacak.
+    </div>
+
+    <button
+      class="game-start"
+      id="gameStartBtn"
+    >
+      Oyunu Başlat
+    </button>
+
+  </div>
+
+
+  <div
+    id="gameQuestionScreen"
+    style="display:none"
+  >
+
+    <div
+      class="game-question-number"
+      id="gameQuestionNumber"
+    ></div>
+
+    <div
+      class="game-sentence"
+      id="gameSentence"
+    ></div>
+
+    <div
+      class="game-options"
+      id="gameOptions"
+    ></div>
+
+    <div
+      class="game-result"
+      id="gameResult"
+    ></div>
+
+    <button
+      class="game-next"
+      id="gameNextBtn"
+    >
+      Sonraki Soru →
+    </button>
+
+  </div>
+
+  <button
+    class="game-close"
+    id="gameCloseBtn"
+  >
+    Game'den Çık
+  </button>
+
+</div>
+
+
+<!-- LOADING -->
+
+<div
+  id="loading"
+  class="loading"
+>
+  Kelimeler yükleniyor...
+</div>
+
+
+<!-- ERROR -->
+
+<div
+  id="errorBox"
+  class="error"
+  style="display:none"
+></div>
+
+
+<!-- FLASHCARD -->
+
+<div
+  class="card"
+  id="card"
+  style="display:none"
+>
+
+  <div class="word-row">
+
+    <button
+      class="word-sound-btn"
+      id="wordSoundBtn"
+      title="Kelimeyi dinle"
+      aria-label="Kelimeyi dinle"
+    >
+      🔊
+    </button>
+
+    <div
+      class="word"
+      id="wordEl"
+    ></div>
+
+  </div>
+
+  <div
+    class="meanings"
+    id="meaningsEl"
+  ></div>
+
+  <div
+    class="examples"
+    id="examplesEl"
+  ></div>
+
+  <div
+    class="progress"
+    id="progressEl"
+  ></div>
+
+</div>
+
+
+<!-- CONTROLS -->
+
+<div
+  class="controls"
+  id="controls"
+  style="display:none"
+>
+
+  <button
+    class="btn-show"
+    id="showBtn"
+  >
+    Cevabı Göster
+  </button>
+
+  <button
+    class="btn-good"
+    id="goodBtn"
+  >
+    ✅ Bildim
+  </button>
+
+  <button
+    class="btn-bad"
+    id="badBtn"
+  >
+    ❌ Bilemedim
+  </button>
+
+</div>
+
+
+<button
+  class="btn-reset"
+  id="resetBtn"
+  style="display:none"
+>
+  İstatistikleri sıfırla
+</button>
+
+
+<script>
+
+const DATA_FILE = "august.txt";
+
+const STORAGE_KEY =
+  "flashcards_stats_v1";
+
+const SETTINGS_KEY =
+  "flashcards_settings_v1";
+
+
+let deck = [];
+
+let selectedDeck = [];
+
+let pool = [];
+
+let currentIdx = null;
+
+let selectedRange = null;
+
+let stats = {
+  good: 0,
+  bad: 0
+};
+
+
+/* GAME */
+
+let gameQuestions = [];
+
+let gameQuestionIndex = 0;
+
+let gameScore = 0;
+
+let gameAnswered = false;
+
+let currentGameQuestion = null;
+
+
+/* ELEMENTS */
+
+const loading =
+  document.getElementById("loading");
+
+const errorBox =
+  document.getElementById("errorBox");
+
+const card =
+  document.getElementById("card");
+
+const controls =
+  document.getElementById("controls");
+
+const statsBox =
+  document.getElementById("stats");
+
+const wordEl =
+  document.getElementById("wordEl");
+
+const meaningsEl =
+  document.getElementById("meaningsEl");
+
+const examplesEl =
+  document.getElementById("examplesEl");
+
+const progressEl =
+  document.getElementById("progressEl");
+
+const showBtn =
+  document.getElementById("showBtn");
+
+const goodBtn =
+  document.getElementById("goodBtn");
+
+const badBtn =
+  document.getElementById("badBtn");
+
+const resetBtn =
+  document.getElementById("resetBtn");
+
+const statGood =
+  document.getElementById("statGood");
+
+const statBad =
+  document.getElementById("statBad");
+
+const statRate =
+  document.getElementById("statRate");
+
+const settingsBtn =
+  document.getElementById("settingsBtn");
+
+const settingsPanel =
+  document.getElementById("settingsPanel");
+
+const totalWords =
+  document.getElementById("totalWords");
+
+const chunkSize =
+  document.getElementById("chunkSize");
+
+const applyBtn =
+  document.getElementById("applyBtn");
+
+const ranges =
+  document.getElementById("ranges");
+
+const selectedInfo =
+  document.getElementById("selectedInfo");
+
+const wordSoundBtn =
+  document.getElementById("wordSoundBtn");
+
+
+/* GAME */
+
+const gameBtn =
+  document.getElementById("gameBtn");
+
+const gamePanel =
+  document.getElementById("gamePanel");
+
+const gameStartScreen =
+  document.getElementById("gameStartScreen");
+
+const gameQuestionScreen =
+  document.getElementById("gameQuestionScreen");
+
+const gameStartInfo =
+  document.getElementById("gameStartInfo");
+
+const gameStartBtn =
+  document.getElementById("gameStartBtn");
+
+const gameScoreEl =
+  document.getElementById("gameScore");
+
+const gameQuestionNumber =
+  document.getElementById("gameQuestionNumber");
+
+const gameSentence =
+  document.getElementById("gameSentence");
+
+const gameOptions =
+  document.getElementById("gameOptions");
+
+const gameResult =
+  document.getElementById("gameResult");
+
+const gameNextBtn =
+  document.getElementById("gameNextBtn");
+
+const gameCloseBtn =
+  document.getElementById("gameCloseBtn");
+
+
+/* =====================================================
+   TXT PARSE
+===================================================== */
+
+function parseLine(line) {
+
+  line = line.trim();
+
+  if (!line) {
+    return null;
+  }
+
+  const equalIndex =
+    line.indexOf("=");
+
+  if (equalIndex === -1) {
+    return null;
+  }
+
+  const word =
+    line.substring(
+      0,
+      equalIndex
+    ).trim();
+
+  const rest =
+    line.substring(
+      equalIndex + 1
+    ).trim();
+
+  const parts =
+    rest
+      .split("/")
+      .map(function(part) {
+        return part.trim();
+      })
+      .filter(Boolean);
+
+  if (parts.length === 0) {
+    return null;
+  }
+
+  const meanings =
+    parts[0]
+      .split(",")
+      .map(function(item) {
+        return item.trim();
+      })
+      .filter(Boolean);
+
+  const examples =
+    parts.slice(1);
+
+  if (
+    !word ||
+    meanings.length === 0
+  ) {
+    return null;
+  }
+
+  return {
+    word: word,
+    meanings: meanings,
+    examples: examples
+  };
+
+}
+
+
+/* =====================================================
+   SHUFFLE
+===================================================== */
+
+function shuffle(array) {
+
+  for (
+    let i = array.length - 1;
+    i > 0;
+    i--
+  ) {
+
+    const j =
+      Math.floor(
+        Math.random() * (i + 1)
+      );
+
+    const temp =
+      array[i];
+
+    array[i] =
+      array[j];
+
+    array[j] =
+      temp;
+
+  }
+
+}
+
+
+/* =====================================================
+   PRONUNCIATION
+===================================================== */
+
+/*
+  Tarayıcının kendi İngilizce seslendirme
+  sistemini kullanıyoruz.
+
+  Bu nedenle:
+
+  - PC'de çalışır
+  - Android'de çalışır
+  - iPhone/iPad'de çalışır
+  - ekstra API gerekmez
+  - internet bağlantısı gerektirmeyebilir
+
+  Kullanılabilir İngilizce sesi seçmeye çalışır.
+*/
+
+function pronounceWord(word) {
+
+  if (
+    !("speechSynthesis" in window)
+  ) {
+
+    alert(
+      "Bu cihazda sesli okuma desteklenmiyor."
+    );
+
+    return;
+
+  }
+
+
+  window.speechSynthesis.cancel();
+
+
+  const utterance =
+    new SpeechSynthesisUtterance(
+      word
+    );
+
+
+  utterance.lang =
+    "en-US";
+
+  utterance.rate =
+    0.85;
+
+  utterance.pitch =
+    1;
+
+
+  const voices =
+    window.speechSynthesis.getVoices();
+
+
+  /*
+    Öncelik:
+
+    en-US
+    en-GB
+    diğer İngilizce sesler
+  */
+
+  let voice =
+    voices.find(
+      function(v) {
+        return (
+          v.lang &&
+          v.lang.toLowerCase() ===
+          "en-us"
+        );
+      }
+    );
+
+
+  if (!voice) {
+
+    voice =
+      voices.find(
+        function(v) {
+          return (
+            v.lang &&
+            v.lang.toLowerCase() ===
+            "en-gb"
+          );
+        }
+      );
+
+  }
+
+
+  if (!voice) {
+
+    voice =
+      voices.find(
+        function(v) {
+          return (
+            v.lang &&
+            v.lang.toLowerCase().startsWith(
+              "en"
+            )
+          );
+        }
+      );
+
+  }
+
+
+  if (voice) {
+
+    utterance.voice =
+      voice;
+
+  }
+
+
+  window.speechSynthesis.speak(
+    utterance
+  );
+
+}
+
+
+/*
+  Bazı tarayıcılarda ses listesi
+  biraz geç yüklenebilir.
+*/
+
+if (
+  "speechSynthesis" in window
+) {
+
+  window.speechSynthesis.onvoiceschanged =
+    function() {
+
+      window.speechSynthesis.getVoices();
+
+    };
+
+}
+
+
+/* FLASHCARD SES */
+
+wordSoundBtn.addEventListener(
+  "click",
+  function(event) {
+
+    event.stopPropagation();
+
+    if (
+      currentIdx === null ||
+      selectedDeck.length === 0
+    ) {
+
+      return;
+
+    }
+
+    const item =
+      selectedDeck[currentIdx];
+
+    pronounceWord(
+      item.word
+    );
+
+  }
+);
+
+
+/* =====================================================
+   STATS
+===================================================== */
+
+function loadStats() {
+
+  try {
+
+    const saved =
+      localStorage.getItem(
+        STORAGE_KEY
+      );
+
+    if (saved) {
+
+      const parsed =
+        JSON.parse(saved);
+
+      if (
+        typeof parsed.good === "number" &&
+        typeof parsed.bad === "number"
+      ) {
+
+        stats = parsed;
+
+      }
+
+    }
+
+  } catch (error) {
+
+    stats = {
+      good: 0,
+      bad: 0
+    };
+
+  }
+
+}
+
+
+function saveStats() {
+
+  localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify(stats)
+  );
+
+}
+
+
+function renderStats() {
+
+  const total =
+    stats.good +
+    stats.bad;
+
+  let rate = 0;
+
+  if (total > 0) {
+
+    rate =
+      Math.round(
+        (stats.good / total) * 100
+      );
+
+  }
+
+  statGood.textContent =
+    stats.good;
+
+  statBad.textContent =
+    stats.bad;
+
+  statRate.textContent =
+    "%" + rate;
+
+}
+
+
+/* =====================================================
+   SETTINGS
+===================================================== */
+
+function saveSettings() {
+
+  const data = {
+
+    chunkSize:
+      parseInt(
+        chunkSize.value,
+        10
+      ) || 50,
+
+    start:
+      selectedRange
+        ? selectedRange.start
+        : 0,
+
+    end:
+      selectedRange
+        ? selectedRange.end
+        : 0
+
+  };
+
+  localStorage.setItem(
+    SETTINGS_KEY,
+    JSON.stringify(data)
+  );
+
+}
+
+
+function loadSettings() {
+
+  try {
+
+    const saved =
+      localStorage.getItem(
+        SETTINGS_KEY
+      );
+
+    if (!saved) {
+
+      chunkSize.value = 50;
+
+      return;
+
+    }
+
+    const data =
+      JSON.parse(saved);
+
+    chunkSize.value =
+      data.chunkSize || 50;
+
+    if (
+      typeof data.start === "number" &&
+      typeof data.end === "number" &&
+      data.end > data.start
+    ) {
+
+      selectedRange = {
+
+        start: data.start,
+
+        end: data.end
+
+      };
+
+    }
+
+  } catch (error) {
+
+    chunkSize.value = 50;
+
+  }
+
+}
+
+
+/* =====================================================
+   RANGE BUTTONS
+===================================================== */
+
+function createRangeButtons() {
+
+  ranges.innerHTML = "";
+
+  const size =
+    parseInt(
+      chunkSize.value,
+      10
+    );
+
+  if (
+    !size ||
+    size < 1 ||
+    deck.length === 0
+  ) {
+
+    return;
+
+  }
+
+
+  const allButton =
+    document.createElement("button");
+
+  allButton.className =
+    "range-btn";
+
+  allButton.textContent =
+    "Tümü (" +
+    deck.length +
+    ")";
+
+  allButton.dataset.start =
+    "0";
+
+  allButton.dataset.end =
+    String(deck.length);
+
+  allButton.addEventListener(
+    "click",
+    function() {
+
+      selectRange(
+        0,
+        deck.length,
+        "Tümü"
+      );
+
+    }
+  );
+
+  ranges.appendChild(
+    allButton
+  );
+
+
+  for (
+    let start = 0;
+    start < deck.length;
+    start += size
+  ) {
+
+    const end =
+      Math.min(
+        start + size,
+        deck.length
+      );
+
+    const button =
+      document.createElement("button");
+
+    button.className =
+      "range-btn";
+
+    button.textContent =
+      (start + 1) +
+      "-" +
+      end;
+
+    button.dataset.start =
+      String(start);
+
+    button.dataset.end =
+      String(end);
+
+    button.addEventListener(
+      "click",
+      function() {
+
+        selectRange(
+          start,
+          end,
+          (start + 1) +
+          "-" +
+          end
+        );
+
+      }
+    );
+
+    ranges.appendChild(
+      button
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   RANGE SELECT
+===================================================== */
+
+function selectRange(
+  start,
+  end,
+  label
+) {
+
+  selectedDeck =
+    deck.slice(
+      start,
+      end
+    );
+
+  if (
+    selectedDeck.length === 0
+  ) {
+
+    return;
+
+  }
+
+
+  pool = [];
+
+  for (
+    let i = 0;
+    i < selectedDeck.length;
+    i++
+  ) {
+
+    pool.push(i);
+
+  }
+
+  shuffle(pool);
+
+
+  selectedRange = {
+
+    start: start,
+
+    end: end,
+
+    label: label
+
+  };
+
+
+  saveSettings();
+
+
+  const buttons =
+    ranges.querySelectorAll(
+      ".range-btn"
+    );
+
+  buttons.forEach(
+    function(button) {
+
+      button.classList.remove(
+        "active"
+      );
+
+      if (
+        Number(button.dataset.start) === start &&
+        Number(button.dataset.end) === end
+      ) {
+
+        button.classList.add(
+          "active"
+        );
+
+      }
+
+    }
+  );
+
+
+  selectedInfo.style.display =
+    "block";
+
+  selectedInfo.textContent =
+    "Seçilen bölüm: " +
+    label +
+    " · " +
+    selectedDeck.length +
+    " kelime";
+
+
+  nextCard();
+
+}
+
+
+/* =====================================================
+   FLASHCARD
+===================================================== */
+
+function nextCard() {
+
+  if (
+    selectedDeck.length === 0
+  ) {
+
+    return;
+
+  }
+
+
+  if (
+    pool.length === 0
+  ) {
+
+    for (
+      let i = 0;
+      i < selectedDeck.length;
+      i++
+    ) {
+
+      pool.push(i);
+
+    }
+
+    shuffle(pool);
+
+  }
+
+
+  currentIdx =
+    pool.pop();
+
+
+  const item =
+    selectedDeck[currentIdx];
+
+
+  wordEl.textContent =
+    item.word;
+
+  meaningsEl.textContent =
+    item.meanings.join(", ");
+
+
+  examplesEl.innerHTML =
+    "";
+
+
+  item.examples.forEach(
+    function(example) {
+
+      const div =
+        document.createElement("div");
+
+      div.textContent =
+        "• " + example;
+
+      examplesEl.appendChild(
+        div
+      );
+
+    }
+  );
+
+
+  meaningsEl.style.display =
+    "none";
+
+  examplesEl.style.display =
+    "none";
+
+  showBtn.style.display =
+    "block";
+
+  goodBtn.style.display =
+    "none";
+
+  badBtn.style.display =
+    "none";
+
+
+  progressEl.textContent =
+    "Bu bölüm: " +
+    selectedDeck.length +
+    " kelime · Kalan: " +
+    (pool.length + 1);
+
+}
+
+
+/* =====================================================
+   FLASHCARD EVENTS
+===================================================== */
+
+showBtn.addEventListener(
+  "click",
+  function() {
+
+    meaningsEl.style.display =
+      "block";
+
+    examplesEl.style.display =
+      "block";
+
+    showBtn.style.display =
+      "none";
+
+    goodBtn.style.display =
+      "block";
+
+    badBtn.style.display =
+      "block";
+
+  }
+);
+
+
+goodBtn.addEventListener(
+  "click",
+  function() {
+
+    stats.good++;
+
+    saveStats();
+
+    renderStats();
+
+    nextCard();
+
+  }
+);
+
+
+badBtn.addEventListener(
+  "click",
+  function() {
+
+    stats.bad++;
+
+    saveStats();
+
+    renderStats();
+
+
+    const position =
+      Math.floor(
+        Math.random() *
+        (pool.length + 1)
+      );
+
+    pool.splice(
+      position,
+      0,
+      currentIdx
+    );
+
+
+    nextCard();
+
+  }
+);
+
+
+/* =====================================================
+   SETTINGS
+===================================================== */
+
+settingsBtn.addEventListener(
+  "click",
+  function() {
+
+    if (
+      settingsPanel.style.display === "block"
+    ) {
+
+      settingsPanel.style.display =
+        "none";
+
+    } else {
+
+      settingsPanel.style.display =
+        "block";
+
+    }
+
+  }
+);
+
+
+/* =====================================================
+   APPLY
+===================================================== */
+
+applyBtn.addEventListener(
+  "click",
+  function() {
+
+    const size =
+      parseInt(
+        chunkSize.value,
+        10
+      );
+
+    if (
+      !size ||
+      size < 1
+    ) {
+
+      alert(
+        "Lütfen 1 veya daha büyük bir sayı gir."
+      );
+
+      return;
+
+    }
+
+
+    createRangeButtons();
+
+
+    const end =
+      Math.min(
+        size,
+        deck.length
+      );
+
+
+    selectRange(
+      0,
+      end,
+      "1-" + end
+    );
+
+  }
+);
+
+
+chunkSize.addEventListener(
+  "keydown",
+  function(event) {
+
+    if (
+      event.key === "Enter"
+    ) {
+
+      applyBtn.click();
+
+    }
+
+  }
+);
+
+
+/* =====================================================
+   RESET
+===================================================== */
+
+resetBtn.addEventListener(
+  "click",
+  function() {
+
+    if (
+      confirm(
+        "İstatistikleri sıfırlamak istediğine emin misin?"
+      )
+    ) {
+
+      stats = {
+
+        good: 0,
+
+        bad: 0
+
+      };
+
+      saveStats();
+
+      renderStats();
+
+    }
+
+  }
+);
+
+
+/* =====================================================
+   GAME
+===================================================== */
+
+function getMeaning(item) {
+
+  return item.meanings.join(", ");
+
+}
+
+
+function escapeHtml(text) {
+
+  const div =
+    document.createElement("div");
+
+  div.textContent =
+    text;
+
+  return div.innerHTML;
+
+}
+
+
+/* =====================================================
+   FIND WORD FORM
+===================================================== */
+
+function findWordForm(
+  sentence,
+  word
+) {
+
+  const cleanWord =
+    word
+      .trim()
+      .replace(
+        /[.*+?^${}()|[\]\\]/g,
+        "\\$&"
+      );
+
+
+  let regex =
+    new RegExp(
+      "\\b" +
+      cleanWord +
+      "\\b",
+      "i"
+    );
+
+  let match =
+    sentence.match(regex);
+
+  if (match) {
+
+    return match[0];
+
+  }
+
+
+  const root =
+    word
+      .trim()
+      .toLowerCase();
+
+
+  const patterns = [
+
+    root + "ed",
+
+    root + "d",
+
+    root + "ing",
+
+    root + "s",
+
+    root + "es",
+
+    root + "ies",
+
+    root + "ied"
+
+  ];
+
+
+  for (
+    let i = 0;
+    i < patterns.length;
+    i++
+  ) {
+
+    const candidate =
+      patterns[i]
+        .replace(
+          /[.*+?^${}()|[\]\\]/g,
+          "\\$&"
+        );
+
+    regex =
+      new RegExp(
+        "\\b" +
+        candidate +
+        "\\b",
+        "i"
+      );
+
+    match =
+      sentence.match(regex);
+
+    if (match) {
+
+      return match[0];
+
+    }
+
+  }
+
+
+  return null;
+
+}
+
+
+/* =====================================================
+   HIDE WORD
+===================================================== */
+
+function hideWordInSentence(
+  sentence,
+  word
+) {
+
+  const actualForm =
+    findWordForm(
+      sentence,
+      word
+    );
+
+
+  if (actualForm) {
+
+    const escaped =
+      actualForm.replace(
+        /[.*+?^${}()|[\]\\]/g,
+        "\\$&"
+      );
+
+    const regex =
+      new RegExp(
+        "\\b" +
+        escaped +
+        "\\b",
+        "i"
+      );
+
+    return {
+
+      hidden:
+        sentence.replace(
+          regex,
+          "_____"
+        ),
+
+      actualForm:
+        actualForm
+
+    };
+
+  }
+
+
+  const root =
+    word
+      .trim()
+      .replace(
+        /[.*+?^${}()|[\]\\]/g,
+        "\\$&"
+      );
+
+
+  const looseRegex =
+    new RegExp(
+      "\\b" +
+      root +
+      "[A-Za-z]*\\b",
+      "i"
+    );
+
+
+  const looseMatch =
+    sentence.match(
+      looseRegex
+    );
+
+
+  if (looseMatch) {
+
+    return {
+
+      hidden:
+        sentence.replace(
+          looseRegex,
+          "_____"
+        ),
+
+      actualForm:
+        looseMatch[0]
+
+    };
+
+  }
+
+
+  return null;
+
+}
+
+
+/* =====================================================
+   CREATE OPTIONS
+===================================================== */
+
+function createOptions(
+  correctItem
+) {
+
+  const options = [];
+
+  options.push(
+    correctItem
+  );
+
+
+  const candidates =
+    selectedDeck.filter(
+      function(item) {
+
+        return (
+          item.word.toLowerCase() !==
+          correctItem.word.toLowerCase()
+        );
+
+      }
+    );
+
+
+  shuffle(candidates);
+
+
+  for (
+    let i = 0;
+    i < candidates.length &&
+    options.length < 4;
+    i++
+  ) {
+
+    options.push(
+      candidates[i]
+    );
+
+  }
+
+
+  shuffle(options);
+
+  return options;
+
+}
+
+
+/* =====================================================
+   CREATE GAME QUESTIONS
+===================================================== */
+
+function createGameQuestions() {
+
+  gameQuestions = [];
+
+
+  selectedDeck.forEach(
+    function(item) {
+
+      if (
+        !item.examples ||
+        item.examples.length === 0
+      ) {
+
+        return;
+
+      }
+
+
+      item.examples.forEach(
+        function(example) {
+
+          const hiddenData =
+            hideWordInSentence(
+              example,
+              item.word
+            );
+
+
+          if (!hiddenData) {
+
+            return;
+
+          }
+
+
+          const options =
+            createOptions(
+              item
+            );
+
+
+          if (
+            options.length < 4
+          ) {
+
+            return;
+
+          }
+
+
+          gameQuestions.push({
+
+            item: item,
+
+            sentence: example,
+
+            hiddenSentence:
+              hiddenData.hidden,
+
+            actualForm:
+              hiddenData.actualForm,
+
+            options: options
+
+          });
+
+        }
+      );
+
+    }
+  );
+
+
+  shuffle(gameQuestions);
+
+}
+
+
+/* =====================================================
+   GAME OPEN
+===================================================== */
+
+gameBtn.addEventListener(
+  "click",
+  function() {
+
+    if (
+      selectedDeck.length === 0
+    ) {
+
+      alert(
+        "Önce bir kelime aralığı seç."
+      );
+
+      return;
+
+    }
+
+
+    settingsPanel.style.display =
+      "none";
+
+    card.style.display =
+      "none";
+
+    controls.style.display =
+      "none";
+
+    statsBox.style.display =
+      "none";
+
+    selectedInfo.style.display =
+      "none";
+
+    resetBtn.style.display =
+      "none";
+
+
+    gamePanel.style.display =
+      "block";
+
+
+    gameStartScreen.style.display =
+      "block";
+
+    gameQuestionScreen.style.display =
+      "none";
+
+
+    gameStartBtn.textContent =
+      "Oyunu Başlat";
+
+
+    gameStartInfo.textContent =
+      "Seçili bölüm: " +
+      (
+        selectedRange
+          ? selectedRange.label
+          : ""
+      ) +
+      " · " +
+      selectedDeck.length +
+      " kelime. " +
+      "Her örnek cümle ayrı soru olacak.";
+
+  }
+);
+
+
+/* =====================================================
+   GAME START
+===================================================== */
+
+gameStartBtn.addEventListener(
+  "click",
+  function() {
+
+    createGameQuestions();
+
+
+    if (
+      gameQuestions.length === 0
+    ) {
+
+      alert(
+        "Bu aralıkta yeterli örnek cümle bulunamadı. En az 4 farklı kelimenin bulunması gerekiyor."
+      );
+
+      return;
+
+    }
+
+
+    gameQuestionIndex = 0;
+
+    gameScore = 0;
+
+    gameAnswered = false;
+
+
+    gameStartScreen.style.display =
+      "none";
+
+    gameQuestionScreen.style.display =
+      "block";
+
+
+    updateGameScore();
+
+    showGameQuestion();
+
+  }
+);
+
+
+/* =====================================================
+   GAME SCORE
+===================================================== */
+
+function updateGameScore() {
+
+  gameScoreEl.textContent =
+    "Skor: " +
+    gameScore +
+    " / " +
+    gameQuestionIndex;
+
+}
+
+
+/* =====================================================
+   GAME QUESTION
+===================================================== */
+
+function showGameQuestion() {
+
+  if (
+    gameQuestionIndex >=
+    gameQuestions.length
+  ) {
+
+    finishGame();
+
+    return;
+
+  }
+
+
+  currentGameQuestion =
+    gameQuestions[
+      gameQuestionIndex
+    ];
+
+
+  gameAnswered = false;
+
+
+  gameQuestionNumber.textContent =
+    "Soru " +
+    (gameQuestionIndex + 1) +
+    " / " +
+    gameQuestions.length;
+
+
+  gameSentence.innerHTML =
+    escapeHtml(
+      currentGameQuestion.hiddenSentence
+    ).replace(
+      /_+/g,
+      '<span class="blank">_____</span>'
+    );
+
+
+  gameOptions.innerHTML =
+    "";
+
+
+  currentGameQuestion.options.forEach(
+    function(item) {
+
+      const button =
+        document.createElement(
+          "button"
+        );
+
+      button.className =
+        "option-btn";
+
+
+      /*
+        SES BUTONU
+        SADECE KELİMENİN YANINDA
+      */
+
+      const soundButton =
+        document.createElement(
+          "button"
+        );
+
+      soundButton.type =
+        "button";
+
+      soundButton.className =
+        "option-sound-btn";
+
+      soundButton.textContent =
+        "🔊";
+
+      soundButton.title =
+        "Kelimeyi dinle";
+
+      soundButton.setAttribute(
+        "aria-label",
+        "Kelimeyi dinle"
+      );
+
+
+      soundButton.addEventListener(
+        "click",
+        function(event) {
+
+          event.stopPropagation();
+
+          pronounceWord(
+            item.word
+          );
+
+        }
+      );
+
+
+      /*
+        Kelime + anlam alanı
+      */
+
+      const content =
+        document.createElement(
+          "div"
+        );
+
+      content.className =
+        "option-content";
+
+
+      const wordSpan =
+        document.createElement(
+          "span"
+        );
+
+      wordSpan.className =
+        "option-word";
+
+      wordSpan.textContent =
+        item.word;
+
+
+      content.appendChild(
+        wordSpan
+      );
+
+
+      button.appendChild(
+        soundButton
+      );
+
+      button.appendChild(
+        content
+      );
+
+
+      button.addEventListener(
+        "click",
+        function(event) {
+
+          /*
+            Eğer ses butonuna
+            basıldıysa cevaplama.
+          */
+
+          if (
+            event.target.closest(
+              ".option-sound-btn"
+            )
+          ) {
+
+            return;
+
+          }
+
+
+          answerGame(
+            button,
+            item
+          );
+
+        }
+      );
+
+
+      gameOptions.appendChild(
+        button
+      );
+
+    }
+  );
+
+
+  gameResult.innerHTML =
+    "";
+
+  gameNextBtn.style.display =
+    "none";
+
+
+  updateGameScore();
+
+}
+
+
+/* =====================================================
+   GAME ANSWER
+===================================================== */
+
+function answerGame(
+  selectedButton,
+  selectedItem
+) {
+
+  if (gameAnswered) {
+
+    return;
+
+  }
+
+
+  gameAnswered = true;
+
+
+  const correctItem =
+    currentGameQuestion.item;
+
+
+  const actualForm =
+    currentGameQuestion.actualForm;
+
+
+  const buttons =
+    gameOptions.querySelectorAll(
+      ".option-btn"
+    );
+
+
+  buttons.forEach(
+    function(button) {
+
+      button.disabled =
+        true;
+
+    }
+  );
+
+
+  /*
+    Cevaptan sonra anlamları göster.
+  */
+
+  buttons.forEach(
+    function(button) {
+
+      const word =
+        button
+          .querySelector(
+            ".option-word"
+          )
+          .textContent;
+
+
+      const item =
+        currentGameQuestion.options.find(
+          function(option) {
+
+            return (
+              option.word.toLowerCase() ===
+              word.toLowerCase()
+            );
+
+          }
+        );
+
+
+      if (!item) {
+
+        return;
+
+      }
+
+
+      const meaningSpan =
+        document.createElement(
+          "span"
+        );
+
+      meaningSpan.className =
+        "option-meaning";
+
+      meaningSpan.textContent =
+        getMeaning(item);
+
+
+      button
+        .querySelector(
+          ".option-content"
+        )
+        .appendChild(
+          meaningSpan
+        );
+
+    }
+  );
+
+
+  /*
+    Doğru cevabı yeşil.
+  */
+
+  buttons.forEach(
+    function(button) {
+
+      const word =
+        button
+          .querySelector(
+            ".option-word"
+          )
+          .textContent;
+
+
+      if (
+        word.toLowerCase() ===
+        correctItem.word.toLowerCase()
+      ) {
+
+        button.classList.add(
+          "correct"
+        );
+
+      }
+
+    }
+  );
+
+
+  const isCorrect =
+    selectedItem.word.toLowerCase() ===
+    correctItem.word.toLowerCase();
+
+
+  if (isCorrect) {
+
+    gameScore++;
+
+
+    gameResult.innerHTML =
+      "✅ Doğru! " +
+      "<strong>" +
+      escapeHtml(
+        correctItem.word
+      ) +
+      "</strong>" +
+      " (" +
+      escapeHtml(
+        getMeaning(correctItem)
+      ) +
+      ")";
+
+  } else {
+
+    selectedButton.classList.add(
+      "wrong"
+    );
+
+
+    gameResult.innerHTML =
+      "❌ Yanlış! Doğru cevap: " +
+      "<strong>" +
+      escapeHtml(
+        correctItem.word
+      ) +
+      "</strong>" +
+      " (" +
+      escapeHtml(
+        getMeaning(correctItem)
+      ) +
+      ")";
+
+  }
+
+
+  /*
+    Gerçek cümleyi göster.
+  */
+
+  const revealed =
+    document.createElement(
+      "div"
+    );
+
+  revealed.className =
+    "game-revealed-sentence";
+
+
+  const sentenceEscaped =
+    escapeHtml(
+      currentGameQuestion.sentence
+    );
+
+
+  const actualRegex =
+    new RegExp(
+      escapeRegExp(actualForm),
+      "i"
+    );
+
+
+  const highlightedSentence =
+    sentenceEscaped.replace(
+      actualRegex,
+      function(match) {
+
+        return (
+          '<span class="game-revealed-word">' +
+          escapeHtml(match) +
+          "</span>"
+        );
+
+      }
+    );
+
+
+  revealed.innerHTML =
+    "📌 Cümledeki kullanım:<br>" +
+    highlightedSentence;
+
+
+  gameResult.appendChild(
+    revealed
+  );
+
+
+  updateGameScore();
+
+
+  gameNextBtn.style.display =
+    "block";
+
+}
+
+
+/* =====================================================
+   REGEX ESCAPE
+===================================================== */
+
+function escapeRegExp(text) {
+
+  return text.replace(
+    /[.*+?^${}()|[\]\\]/g,
+    "\\$&"
+  );
+
+}
+
+
+/* =====================================================
+   NEXT
+===================================================== */
+
+gameNextBtn.addEventListener(
+  "click",
+  function() {
+
+    gameQuestionIndex++;
+
+    showGameQuestion();
+
+  }
+);
+
+
+/* =====================================================
+   GAME FINISH
+===================================================== */
+
+function finishGame() {
+
+  gameQuestionScreen.style.display =
+    "none";
+
+  gameStartScreen.style.display =
+    "block";
+
+
+  gameStartInfo.innerHTML =
+    "🎉 Oyun bitti!<br><br>" +
+
+    "<strong>" +
+    gameScore +
+    " / " +
+    gameQuestions.length +
+    "</strong>" +
+
+    " doğru yaptın.";
+
+
+  gameStartBtn.textContent =
+    "Tekrar Oyna";
+
+}
+
+
+/* =====================================================
+   GAME CLOSE
+===================================================== */
+
+gameCloseBtn.addEventListener(
+  "click",
+  function() {
+
+    gamePanel.style.display =
+      "none";
+
+    card.style.display =
+      "flex";
+
+    controls.style.display =
+      "flex";
+
+    statsBox.style.display =
+      "flex";
+
+    resetBtn.style.display =
+      "block";
+
+    selectedInfo.style.display =
+      "block";
+
+
+    nextCard();
+
+  }
+);
+
+
+/* =====================================================
+   INIT
+===================================================== */
+
+async function init() {
+
+  loadStats();
+
+  loadSettings();
+
+  renderStats();
+
+
+  try {
+
+    const response =
+      await fetch(
+        DATA_FILE,
+        {
+          cache: "no-store"
+        }
+      );
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        "august.txt bulunamadı."
+      );
+
+    }
+
+
+    const text =
+      await response.text();
+
+
+    deck =
+      text
+        .split(/\r?\n/)
+        .map(parseLine)
+        .filter(Boolean);
+
+
+    if (
+      deck.length === 0
+    ) {
+
+      throw new Error(
+        "august.txt içinde geçerli kelime bulunamadı."
+      );
+
+    }
+
+
+    totalWords.textContent =
+      deck.length;
+
+
+    loading.style.display =
+      "none";
+
+    card.style.display =
+      "flex";
+
+    controls.style.display =
+      "flex";
+
+    statsBox.style.display =
+      "flex";
+
+    resetBtn.style.display =
+      "block";
+
+
+    createRangeButtons();
+
+
+    if (
+      selectedRange &&
+      selectedRange.start >= 0 &&
+      selectedRange.end <= deck.length
+    ) {
+
+      let label;
+
+
+      if (
+        selectedRange.start === 0 &&
+        selectedRange.end === deck.length
+      ) {
+
+        label = "Tümü";
+
+      } else {
+
+        label =
+          (selectedRange.start + 1) +
+          "-" +
+          selectedRange.end;
+
+      }
+
+
+      selectRange(
+        selectedRange.start,
+        selectedRange.end,
+        label
+      );
+
+    } else {
+
+      const size =
+        parseInt(
+          chunkSize.value,
+          10
+        ) || 50;
+
+
+      const end =
+        Math.min(
+          size,
+          deck.length
+        );
+
+
+      selectRange(
+        0,
+        end,
+        "1-" + end
+      );
+
+    }
+
+  } catch (error) {
+
+    loading.style.display =
+      "none";
+
+    errorBox.style.display =
+      "block";
+
+    errorBox.textContent =
+      "Hata: " +
+      error.message +
+      " august.txt dosyasının index.html ile aynı klasörde olduğundan emin ol.";
+
+  }
+
+}
+
+
+init();
+
+</script>
+
+</body>
+</html>
